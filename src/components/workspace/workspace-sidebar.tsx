@@ -22,6 +22,7 @@ import {
   DocumentPreviewDialog,
 } from './workspace-document-dialogs'
 import type { Source } from './workspace-context'
+import { WorkspaceChildrenDialog } from './workspace-children-dialog.tsx'
 
 export function WorkspaceSidebar() {
   const {
@@ -31,12 +32,14 @@ export function WorkspaceSidebar() {
     setActiveFocusId,
     isLoading,
     error,
+    selectedChild,
   } = useWorkspace()
   const { setOpenMobile } = useSidebar()
   const navigate = useNavigate()
   const logout = useLogout()
   const [logoutError, setLogoutError] = useState<string | null>(null)
   const [isAddDocumentOpen, setIsAddDocumentOpen] = useState(false)
+  const [isChildrenDialogOpen, setIsChildrenDialogOpen] = useState(false)
   const [previewDocument, setPreviewDocument] = useState<Source | null>(null)
   const [deleteDocument, setDeleteDocument] = useState<Source | null>(null)
 
@@ -151,24 +154,28 @@ export function WorkspaceSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4">
-        <div
+        <button
+          type="button"
+          onClick={() => setIsChildrenDialogOpen(true)}
           id="tour-profile"
-          className="rounded-xl border border-border bg-muted p-3"
+          className="w-full rounded-xl border border-border bg-muted p-3 text-left transition-colors hover:bg-accent"
         >
           <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
             Hồ sơ học tập
           </p>
           <p className="mt-1 text-sm font-semibold text-sidebar-foreground">
-            Bé Moon - Lớp 4A
+            {selectedChild
+              ? `${selectedChild.name} - ${selectedChild.class ?? selectedChild.grade ?? 'Chưa có lớp'}`
+              : 'Chưa chọn học sinh'}
           </p>
-        </div>
+        </button>
 
         <Button
           type="button"
           variant="outline"
           onClick={handleLogout}
           disabled={logout.isPending}
-          className="mt-3 w-full rounded-xl"
+          className="mt-3 w-full"
         >
           {logout.isPending ? 'Đang đăng xuất...' : 'Đăng xuất'}
         </Button>
@@ -180,7 +187,10 @@ export function WorkspaceSidebar() {
         ) : null}
       </SidebarFooter>
 
-      <AddDocumentDialog open={isAddDocumentOpen} onOpenChange={setIsAddDocumentOpen} />
+      <AddDocumentDialog
+        open={isAddDocumentOpen}
+        onOpenChange={setIsAddDocumentOpen}
+      />
       <DocumentPreviewDialog
         document={previewDocument}
         open={!!previewDocument}
@@ -198,6 +208,10 @@ export function WorkspaceSidebar() {
             setDeleteDocument(null)
           }
         }}
+      />
+      <WorkspaceChildrenDialog
+        open={isChildrenDialogOpen}
+        onOpenChange={setIsChildrenDialogOpen}
       />
     </Sidebar>
   )

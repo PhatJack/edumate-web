@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
-import type { Document as ApiDocument, Exercise as ApiExercise } from '#/api/types'
+import type { Child, Document as ApiDocument, Exercise as ApiExercise } from '#/api/types'
 import { useDocuments } from '#/hooks/api/useDocuments'
 import { useExercises } from '#/hooks/api/useExercises'
+import { useChildren } from '#/hooks/api/useProfile'
 
 export type Exercise = {
   id: string
@@ -19,6 +20,12 @@ export type Source = {
 }
 
 type WorkspaceContextType = {
+  children: Child[]
+  selectedChildId: string | null
+  setSelectedChildId: (id: string | null) => void
+  selectedChild: Child | null
+  isChildrenLoading: boolean
+  childrenError: string | null
   sources: Source[]
   isLoading: boolean
   error: string | null
@@ -31,6 +38,7 @@ type WorkspaceContextType = {
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | null>(null)
+const SELECTED_CHILD_STORAGE_KEY = 'edumate_selected_child_id'
 
 function mapExercise(exercise: ApiExercise): Exercise {
   return {
@@ -64,10 +72,20 @@ function mapDocument(document: ApiDocument): Source {
 }
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
-  const documentsQuery = useDocuments()
+  const childrenQuery = useChildren()
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null)
+  const documentsQuery = useDocuments({ child_id: selectedChildId ?? undefined })
   const [activeSourceId, setActiveSourceId] = useState<string | null>(null)
   const [activeFocusId, setActiveFocusId] = useState<string | null>(null)
   const activeExercisesQuery = useExercises(activeSourceId ?? '')
+  const childItems = useMemo(
+    () => (childrenQuery.data ?? []).map((child) => ({
+      ...child,
+      class: child.class ?? child.grade ?? null,
+      grade: child.grade ?? child.class ?? null,
+    })),
+    [childrenQuery.data],
+  )
 
   const documentItems = getDocumentItems(documentsQuery.data)
 
@@ -75,6 +93,54 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     () => documentItems.map(mapDocument),
     [documentItems],
   )
+
+  const selectedChild = useMemo(
+    () => childItems.find((child) => child.id === selectedChildId) ?? null,
+    [childItems, selectedChildId],
+  )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    if (childrenQuery.isLoading) {
+      return
+    }
+
+    if (childItems.length === 0) {
+      if (selectedChildId !== null) {
+        setSelectedChildId(null)
+      }
+      window.localStorage.removeItem(SELECTED_CHILD_STORAGE_KEY)
+      return
+    }
+
+    if (selectedChildId && childItems.some((child) => child.id === selectedChildId)) {
+      return
+    }
+
+    const storedChildId = window.localStorage.getItem(SELECTED_CHILD_STORAGE_KEY)
+    const nextChildId =
+      storedChildId && childItems.some((child) => child.id === storedChildId)
+        ? storedChildId
+        : childItems[0].id
+
+    setSelectedChildId(nextChildId)
+  }, [childItems, childrenQuery.isLoading, selectedChildId])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    if (!selectedChildId) {
+      window.localStorage.removeItem(SELECTED_CHILD_STORAGE_KEY)
+      return
+    }
+
+    window.localStorage.setItem(SELECTED_CHILD_STORAGE_KEY, selectedChildId)
+  }, [selectedChildId])
 
   const activeSource = useMemo(
     () => {
@@ -142,19 +208,31 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }, [activeFocusId, activeSource, setActiveFocusId])
 
   const error =
-    documentsQuery.error instanceof Error
+    childrenQuery.error instanceof Error
+      ? childrenQuery.error.message
+      : documentsQuery.error instanceof Error
       ? documentsQuery.error.message
       : activeExercisesQuery.error instanceof Error
         ? activeExercisesQuery.error.message
         : null
 
   const isLoading =
+    childrenQuery.isLoading ||
     documentsQuery.isLoading ||
     (!!activeSourceId && activeExercisesQuery.isLoading)
+
+  const childrenError =
+    childrenQuery.error instanceof Error ? childrenQuery.error.message : null
 
   return (
     <WorkspaceContext.Provider
       value={{
+        children: childItems,
+        selectedChildId,
+        setSelectedChildId,
+        selectedChild,
+        isChildrenLoading: childrenQuery.isLoading,
+        childrenError,
         sources,
         isLoading,
         error,

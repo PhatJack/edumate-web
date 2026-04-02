@@ -1,5 +1,4 @@
 import type { Source } from './workspace-context'
-import { Button } from '#/components/ui/button'
 import {
   Dialog,
   DialogContent,

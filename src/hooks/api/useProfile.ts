@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { profileApi } from '../../api/endpoints/profile'
-import type { Child } from '../../api/types'
+import type { ChildCreatePayload, ChildUpdatePayload } from '../../api/types'
 
 export const profileKeys = {
   all: ['profile'] as const,
@@ -38,6 +38,7 @@ export function useAddChild() {
     mutationFn: profileApi.addChild,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: profileKeys.children() })
+      queryClient.invalidateQueries({ queryKey: profileKeys.me() })
     },
   })
 }
@@ -45,13 +46,16 @@ export function useAddChild() {
 export function useUpdateChild() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<Child> }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: ChildUpdatePayload }) =>
       profileApi.updateChild(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: profileKeys.children() })
+      queryClient.invalidateQueries({ queryKey: profileKeys.me() })
     },
   })
 }
+
+export type AddChildPayload = ChildCreatePayload
 
 export function useDeleteChild() {
   const queryClient = useQueryClient()
@@ -59,6 +63,7 @@ export function useDeleteChild() {
     mutationFn: profileApi.deleteChild,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: profileKeys.children() })
+      queryClient.invalidateQueries({ queryKey: profileKeys.me() })
     },
   })
 }

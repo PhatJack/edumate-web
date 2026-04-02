@@ -100,7 +100,7 @@ export function AddDocumentDialog({
   const uploadDocument = useUploadDocument()
   const submitText = useSubmitText()
   const queryClient = useQueryClient()
-  const { setActiveSourceId, setActiveFocusId } = useWorkspace()
+  const { selectedChildId, setActiveSourceId, setActiveFocusId } = useWorkspace()
   const imageRef = useRef<HTMLImageElement | null>(null)
 
   const isBusy =
@@ -182,6 +182,11 @@ export function AddDocumentDialog({
 
   const handleCreate = useCallback(async () => {
     try {
+      if (!selectedChildId) {
+        toast.error('Vui lòng chọn hoặc tạo học sinh trước khi tạo tài liệu.')
+        return
+      }
+
       if (selectedKind === 'text') {
         const trimmedContent = textContent.trim()
         if (!trimmedContent) {
@@ -191,6 +196,7 @@ export function AddDocumentDialog({
 
         const createdDocument = await createDocument.mutateAsync({
           kind: selectedKind,
+          child_id: selectedChildId,
         })
         await submitText.mutateAsync({
           id: createdDocument.id,
@@ -222,6 +228,7 @@ export function AddDocumentDialog({
 
       const createdDocument = await createDocument.mutateAsync({
         kind: selectedKind,
+        child_id: selectedChildId,
       })
 
       if (selectedKind === 'image') {
@@ -267,6 +274,7 @@ export function AddDocumentDialog({
     queryClient,
     selectedFile,
     selectedKind,
+    selectedChildId,
     setActiveFocusId,
     setActiveSourceId,
     submitText,

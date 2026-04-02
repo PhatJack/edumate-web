@@ -4,11 +4,36 @@ import { z } from 'zod'
 export const ChildSchema = z.object({
   id: z.string(),
   name: z.string(),
+  class: z.string().optional().nullable(),
   grade: z.string().optional().nullable(),
   learning_notes: z.string().optional().nullable(),
   created_at: z.string().optional(),
+  updated_at: z.string().optional(),
 })
 export type Child = z.infer<typeof ChildSchema>
+
+export const ChildListSchema = z.object({
+  items: z.array(ChildSchema),
+  total: z.number().optional(),
+  limit: z.number().optional(),
+  offset: z.number().optional(),
+  has_next: z.boolean().optional(),
+})
+export type ChildList = z.infer<typeof ChildListSchema>
+
+export const ChildCreatePayloadSchema = z.object({
+  name: z.string(),
+  class: z.string().optional().nullable(),
+  learning_notes: z.string().optional().nullable(),
+})
+export type ChildCreatePayload = z.infer<typeof ChildCreatePayloadSchema>
+
+export const ChildUpdatePayloadSchema = z.object({
+  name: z.string().optional(),
+  class: z.string().optional().nullable(),
+  learning_notes: z.string().optional().nullable(),
+})
+export type ChildUpdatePayload = z.infer<typeof ChildUpdatePayloadSchema>
 
 export const ProfileSchema = z.object({
   id: z.string(),
