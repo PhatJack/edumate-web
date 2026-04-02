@@ -1,0 +1,50 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 0 * * 0' # Chạy tự động vào mỗi Chủ Nhật
+
+jobs:
+  security-scan-web:
+    name: Security Scan (Web)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Install Dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Quét bảo mật dự án Web
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          scanners: 'vuln,secret'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Slack Notification (Web Security Scan)
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_CHANNEL: 'deploy'
+          SLACK_COLOR: 'danger'
+          SLACK_TITLE: "🚨 Lỗ hổng Bảo mật (Web) 🚨"
+          SLACK_MESSAGE: ":warning: Đã phát hiện lỗ hổng bảo mật mức độ CRITICAL/HIGH trong dự án **Web**. Bạn hãy vào tab Actions trên Github để xem chi tiết."
+          SLACK_USERNAME: "Security Bot"
