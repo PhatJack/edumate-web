@@ -1,11 +1,11 @@
-import { Menu, PlayCircle } from 'lucide-react'
+import { PlayCircle } from 'lucide-react'
 import { useWorkspace } from './workspace-context'
-import { SidebarTrigger, useSidebar } from '#/components/ui/sidebar'
+import { SidebarTrigger } from '#/components/ui/sidebar'
 import { Button } from '#/components/ui/button'
+import ThemeToggle from '../ThemeToggle'
 
 export function WorkspaceHeader() {
   const { activeSource } = useWorkspace()
-  const { toggleSidebar } = useSidebar()
 
   const startTour = () => {}
 
@@ -13,6 +13,7 @@ export function WorkspaceHeader() {
     <header className="flex items-center justify-between border-b border-border px-4 py-3">
       <div className="flex items-center gap-2">
         <SidebarTrigger />
+        <ThemeToggle />
         <h1 className="truncate text-sm font-bold text-foreground">
           {activeSource?.name ?? 'Không có tài liệu'}
         </h1>

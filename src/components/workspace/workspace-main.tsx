@@ -1,9 +1,60 @@
-import { Bot, BookOpen, ListTodo } from 'lucide-react'
+import { BookOpen, Bot } from 'lucide-react'
+
 import { useWorkspace } from './workspace-context'
 import { ScrollArea } from '#/components/ui/scroll-area'
-import { useState } from 'react'
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '#/components/ui/empty'
+import { WorkspaceFooter } from './workspace-footer'
 
 export function WorkspaceMain() {
+  const { activeSource, isLoading } = useWorkspace()
+
+  if (isLoading && !activeSource) {
+    return (
+      <div className="flex min-h-0 flex-1 items-center justify-center p-4">
+        <Empty className="max-w-2xl border-border bg-card">
+          <EmptyContent>
+            <EmptyMedia variant="icon">
+              <BookOpen className="h-6 w-6 text-muted-foreground" />
+            </EmptyMedia>
+            <EmptyHeader>
+              <EmptyTitle>Đang tải tài liệu</EmptyTitle>
+              <EmptyDescription>
+                Vui lòng chờ trong giây lát để danh sách tài liệu hoàn tất tải.
+              </EmptyDescription>
+            </EmptyHeader>
+          </EmptyContent>
+        </Empty>
+      </div>
+    )
+  }
+
+  if (!activeSource) {
+    return (
+      <div className="flex min-h-0 flex-1 items-center justify-center p-4">
+        <Empty className="max-w-2xl border-border bg-card">
+          <EmptyContent>
+            <EmptyMedia variant="icon">
+              <BookOpen className="h-6 w-6 text-muted-foreground" />
+            </EmptyMedia>
+            <EmptyHeader>
+              <EmptyTitle>Không gian làm việc trống</EmptyTitle>
+              <EmptyDescription>
+                Ba mẹ vui lòng chọn hoặc thêm một tài liệu ở danh sách bên trái để sử dụng chức năng.
+              </EmptyDescription>
+            </EmptyHeader>
+          </EmptyContent>
+        </Empty>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <WorkspaceExerciseDetail />
@@ -36,55 +87,5 @@ function WorkspaceExerciseDetail() {
         </p>
       </div>
     </ScrollArea>
-  )
-}
-
-function WorkspaceFooter() {
-  const { activeSource, activeFocusId, setActiveFocusId } = useWorkspace()
-  const [input, setInput] = useState('')
-
-  return (
-    <footer className="border-t border-border p-4">
-      <div id="tour-focus-target" className="mb-3">
-        <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-foreground">
-          Chọn bài tập mục tiêu
-        </label>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {activeSource?.exercises.map((exercise) => (
-            <button
-              key={exercise.id}
-              type="button"
-              onClick={() => setActiveFocusId(exercise.id)}
-              className={`rounded-xl border px-3 py-2 text-left text-sm transition-colors ${
-                exercise.id === activeFocusId
-                  ? 'border-ring bg-accent text-accent-foreground'
-                  : 'border-border bg-card text-card-foreground hover:bg-accent'
-              }`}
-            >
-              <span className="inline-flex items-center gap-2">
-                <ListTodo className="h-4 w-4" />
-                {exercise.title}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex items-end gap-2 rounded-2xl border border-border p-2">
-        <textarea
-          rows={1}
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          placeholder="Nhập câu hỏi để nhận gợi ý giảng bài..."
-          className="min-h-[44px] flex-1 resize-none bg-transparent px-3 py-2 text-sm text-foreground outline-none"
-        />
-        <button
-          type="button"
-          className="rounded-xl bg-primary hover:bg-primary/90 px-3 py-2 text-sm font-semibold text-primary-foreground transition-colors"
-        >
-          <BookOpen className="h-4 w-4" />
-        </button>
-      </div>
-    </footer>
   )
 }

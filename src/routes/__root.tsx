@@ -65,7 +65,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           ]}
         />
         <Scripts />
-        <Toaster richColors position="top-center" />
+        <Toaster richColors theme="light" position="top-center" />
       </body>
     </html>
   )
