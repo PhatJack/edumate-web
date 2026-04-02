@@ -40,10 +40,13 @@ export const ExerciseSchema = z.object({
 })
 export type Exercise = z.infer<typeof ExerciseSchema>
 
+export const DocumentKindEnum = z.enum(['pdf', 'image', 'text', 'drive'])
+export type DocumentKind = z.infer<typeof DocumentKindEnum>
+
 export const DocumentSchema = z.object({
   id: z.string(),
   title: z.string().optional(),
-  kind: z.string().optional(), // 'pdf', 'image', 'text', 'drive', etc.
+  kind: DocumentKindEnum.optional(), // 'pdf', 'image', 'text', 'drive', etc.
   child_id: z.string().optional().nullable(),
   download_url: z.string().optional().nullable(),
   created_at: z.string().optional(),

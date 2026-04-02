@@ -1,4 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
+
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { signInWithPopup } from 'firebase/auth'
 
 import { Button } from '#/components/ui/button'
 import {
@@ -8,12 +11,32 @@ import {
   CardHeader,
   CardTitle,
 } from '#/components/ui/card'
+import { auth, googleProvider } from '#/firebase'
+import { useLoginWithGoogle } from '#/hooks/api/useAuth'
 
 export const Route = createFileRoute('/login')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const navigate = useNavigate()
+  const loginWithGoogle = useLoginWithGoogle()
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const handleGoogleLogin = async () => {
+    setErrorMessage(null)
+
+    try {
+      await signInWithPopup(auth, googleProvider)
+      await loginWithGoogle.mutateAsync()
+      await navigate({ to: '/' })
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Không thể đăng nhập bằng Google.'
+      setErrorMessage(message)
+    }
+  }
+
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(79,184,178,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(47,106,74,0.16),transparent_34%)]" />
@@ -34,11 +57,19 @@ function RouteComponent() {
             type="button"
             size="lg"
             variant="outline"
+            onClick={handleGoogleLogin}
+            disabled={loginWithGoogle.isPending}
             className="h-12 w-full justify-center gap-3 rounded-xl border-border/70 bg-background/80 text-base shadow-sm hover:bg-accent/70"
           >
             <GoogleIcon />
-            Tiếp tục với Google
+            {loginWithGoogle.isPending ? 'Đang đăng nhập...' : 'Tiếp tục với Google'}
           </Button>
+
+          {errorMessage ? (
+            <p className="mt-4 text-center text-sm text-destructive" aria-live="polite">
+              {errorMessage}
+            </p>
+          ) : null}
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Bằng cách tiếp tục, bạn đồng ý đăng nhập bằng Google.

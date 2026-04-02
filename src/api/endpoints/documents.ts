@@ -1,12 +1,12 @@
 import { api } from '../client'
-import type { Document, Exercise } from '../types'
+import type { Document, DocumentKind } from '../types'
 
 export const documentsApi = {
   getDocuments: async (params?: { child_id?: string }): Promise<Document[]> => {
     return api.get('/documents', { params })
   },
   createDocument: async (payload: {
-    kind: string
+    kind: DocumentKind
     child_id?: string
   }): Promise<Document> => {
     return api.post('/documents', payload)

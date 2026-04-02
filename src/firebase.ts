@@ -26,6 +26,9 @@ const firebaseConfig: FirebaseOptions = {
 export const firebaseApp = initializeApp(firebaseConfig)
 export const auth = getAuth(firebaseApp)
 export const googleProvider = new GoogleAuthProvider()
+googleProvider.setCustomParameters({
+  prompt: 'select_account',
+})
 
 /** Analytics chỉ chạy trên trình duyệt (không hỗ trợ file://). */
 void isSupported().then((ok) => {
