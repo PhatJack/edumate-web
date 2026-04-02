@@ -1,5 +1,27 @@
 import axios from 'axios'
-import { auth } from '@/firebase'
+
+const APP_ACCESS_TOKEN_KEY = 'edumate_access_token'
+
+export function getAppAccessToken(): string | null {
+  if (typeof window === 'undefined') {
+    return null
+  }
+  return window.localStorage.getItem(APP_ACCESS_TOKEN_KEY)
+}
+
+export function setAppAccessToken(token: string): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+  window.localStorage.setItem(APP_ACCESS_TOKEN_KEY, token)
+}
+
+export function clearAppAccessToken(): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+  window.localStorage.removeItem(APP_ACCESS_TOKEN_KEY)
+}
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1',
@@ -8,11 +30,11 @@ export const api = axios.create({
   },
 })
 
-// Request Interceptor: Đính kèm Firebase ID Token
+// Request Interceptor: Đính kèm app access token
 api.interceptors.request.use(
   async (config) => {
-    if (auth.currentUser) {
-      const token = await auth.currentUser.getIdToken()
+    const token = getAppAccessToken()
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config

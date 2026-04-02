@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { signInWithPopup } from 'firebase/auth'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { signInWithPopup, signOut } from 'firebase/auth'
 
 import { Button } from '#/components/ui/button'
 import {
@@ -11,10 +11,27 @@ import {
   CardHeader,
   CardTitle,
 } from '#/components/ui/card'
-import { auth, googleProvider } from '#/firebase'
+import { auth, googleProvider, waitForAuthReady } from '#/firebase'
 import { useLoginWithGoogle } from '#/hooks/api/useAuth'
+import { toast } from 'sonner'
+
+function sanitizeRedirect(url: unknown): string {
+  if (typeof url !== 'string' || !url.startsWith('/') || url.startsWith('//')) {
+    return '/'
+  }
+  return url
+}
 
 export const Route = createFileRoute('/login')({
+  validateSearch: (search) => ({
+    redirect: sanitizeRedirect(search.redirect),
+  }),
+  beforeLoad: async () => {
+    const user = await waitForAuthReady()
+    if (user) {
+      throw redirect({ to: '/' })
+    }
+  },
   component: RouteComponent,
 })
 
@@ -23,16 +40,38 @@ function RouteComponent() {
   const loginWithGoogle = useLoginWithGoogle()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
+  useEffect(() => {
+    let active = true
+
+    void waitForAuthReady().then((user) => {
+      if (active && user) {
+        void navigate({ to: '/' })
+      }
+    })
+
+    return () => {
+      active = false
+    }
+  }, [navigate])
+
   const handleGoogleLogin = async () => {
     setErrorMessage(null)
 
     try {
-      await signInWithPopup(auth, googleProvider)
-      await loginWithGoogle.mutateAsync()
+      const result = await signInWithPopup(auth, googleProvider)
+      const idToken = await result.user.getIdToken()
+      await loginWithGoogle.mutateAsync(idToken)
       await navigate({ to: '/' })
+      toast.success('Đăng nhập thành công!')
     } catch (error) {
+      if (auth.currentUser) {
+        await signOut(auth)
+      }
+
       const message =
-        error instanceof Error ? error.message : 'Không thể đăng nhập bằng Google.'
+        error instanceof Error
+          ? error.message
+          : 'Không thể đăng nhập bằng Google.'
       setErrorMessage(message)
     }
   }
@@ -40,10 +79,10 @@ function RouteComponent() {
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(79,184,178,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(47,106,74,0.16),transparent_34%)]" />
-
-      <Card className="island-shell rise-in w-full max-w-md border-white/60 bg-white/80 py-0 backdrop-blur-xl dark:border-white/10 dark:bg-black/30">
-        <CardHeader className="space-y-3 border-b border-border/60 px-8 py-8 text-center">
-          <p className="island-kicker">Chào mừng bạn quay lại</p>
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(79,184,178,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(47,106,74,0.16),transparent_34%)]" />
+      <Card>
+        <CardHeader className="text-center">
+          <p>Chào mừng bạn quay lại</p>
           <CardTitle className="display-title text-3xl font-bold tracking-tight">
             Đăng nhập vào Edumate
           </CardTitle>
@@ -52,21 +91,25 @@ function RouteComponent() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="px-8 py-8">
+        <CardContent className="px-8 py-4">
           <Button
             type="button"
             size="lg"
-            variant="outline"
             onClick={handleGoogleLogin}
             disabled={loginWithGoogle.isPending}
-            className="h-12 w-full justify-center gap-3 rounded-xl border-border/70 bg-background/80 text-base shadow-sm hover:bg-accent/70"
+            className="cursor-pointer w-full"
           >
             <GoogleIcon />
-            {loginWithGoogle.isPending ? 'Đang đăng nhập...' : 'Tiếp tục với Google'}
+            {loginWithGoogle.isPending
+              ? 'Đang đăng nhập...'
+              : 'Tiếp tục với Google'}
           </Button>
 
           {errorMessage ? (
-            <p className="mt-4 text-center text-sm text-destructive" aria-live="polite">
+            <p
+              className="mt-4 text-center text-sm text-destructive"
+              aria-live="polite"
+            >
               {errorMessage}
             </p>
           ) : null}

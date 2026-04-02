@@ -5,7 +5,9 @@ import { WorkspaceSidebar } from '#/components/workspace/workspace-sidebar'
 import { WorkspaceHeader } from '#/components/workspace/workspace-header'
 import { WorkspaceMain } from '#/components/workspace/workspace-main'
 
-export const Route = createFileRoute('/')({ component: IndexRoute })
+export const Route = createFileRoute('/_authenticated/')({
+  component: IndexRoute,
+})
 
 function IndexRoute() {
   return (

@@ -1,6 +1,6 @@
 import { initializeApp, type FirebaseOptions } from 'firebase/app'
 import { getAnalytics, isSupported } from 'firebase/analytics'
-import { getAuth, GoogleAuthProvider } from 'firebase/auth'
+import { getAuth, GoogleAuthProvider, onAuthStateChanged, type User } from 'firebase/auth'
 
 function required(name: keyof ImportMetaEnv): string {
   const v = import.meta.env[name]
@@ -29,6 +29,19 @@ export const googleProvider = new GoogleAuthProvider()
 googleProvider.setCustomParameters({
   prompt: 'select_account',
 })
+
+export function waitForAuthReady(): Promise<User | null> {
+  if (typeof window === 'undefined') {
+    return Promise.resolve(null)
+  }
+
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe()
+      resolve(user)
+    })
+  })
+}
 
 /** Analytics chỉ chạy trên trình duyệt (không hỗ trợ file://). */
 void isSupported().then((ok) => {

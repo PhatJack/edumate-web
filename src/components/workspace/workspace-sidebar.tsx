@@ -1,4 +1,8 @@
+import { useState } from 'react'
+
 import { GraduationCap } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+import { signOut } from 'firebase/auth'
 import {
   Sidebar,
   SidebarContent,
@@ -10,10 +14,31 @@ import {
 } from '#/components/ui/sidebar'
 import { Button } from '#/components/ui/button'
 import { useWorkspace } from './workspace-context'
+import { auth } from '#/firebase'
+import { useLogout } from '#/hooks/api/useAuth'
 
 export function WorkspaceSidebar() {
-  const { sources, activeSourceId, setActiveSourceId, setActiveFocusId } = useWorkspace()
+  const { sources, activeSourceId, setActiveSourceId, setActiveFocusId } =
+    useWorkspace()
   const { setOpenMobile } = useSidebar()
+  const navigate = useNavigate()
+  const logout = useLogout()
+  const [logoutError, setLogoutError] = useState<string | null>(null)
+
+  const handleLogout = async () => {
+    setLogoutError(null)
+
+    try {
+      await signOut(auth)
+      await navigate({ to: '/login', search: { redirect: '/' } })
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Không thể đăng xuất ngay lúc này.'
+      setLogoutError(message)
+    }
+  }
 
   return (
     <Sidebar className="border-r border-border bg-sidebar">
@@ -76,6 +101,22 @@ export function WorkspaceSidebar() {
             Bé Moon - Lớp 4A
           </p>
         </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleLogout}
+          disabled={logout.isPending}
+          className="mt-3 w-full rounded-xl"
+        >
+          {logout.isPending ? 'Đang đăng xuất...' : 'Đăng xuất'}
+        </Button>
+
+        {logoutError ? (
+          <p className="mt-2 text-xs text-destructive" aria-live="polite">
+            {logoutError}
+          </p>
+        ) : null}
       </SidebarFooter>
     </Sidebar>
   )
