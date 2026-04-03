@@ -1,18 +1,18 @@
 import { Eye, Trash2, Image as ImageIcon, FileText, File } from 'lucide-react'
 
 import { Button } from '#/components/ui/button'
-import type { Source } from './workspace-context'
 import { cn } from '#/lib/utils'
+import type { Document } from '#/api/types'
 
 type WorkspaceSourceItemProps = {
-  source: Source
+  source: Document
   isActive: boolean
-  onSelect: (source: Source) => void
-  onPreview: (source: Source) => void
-  onDelete: (source: Source) => void
+  onSelect: (source: Document) => void
+  onPreview: (source: Document) => void
+  onDelete: (source: Document) => void
 }
 
-function getIcon(kind: Source['kind']) {
+function getIcon(kind: Document['kind']) {
   switch (kind) {
     case 'image':
       return <ImageIcon className="h-4 w-4" />
@@ -58,11 +58,11 @@ export function WorkspaceSourceItem({
 
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-sidebar-foreground">
-              {source.name}
+              {source.title}
             </p>
             <div className="mt-0.5 flex items-center gap-2">
               <p className="text-xs text-muted-foreground">
-                {source.exercises.length} bài tập
+                {source.exercise_count} bài tập
               </p>
             </div>
           </div>
@@ -76,7 +76,7 @@ export function WorkspaceSourceItem({
           size="icon-xs"
           onClick={() => onPreview(source)}
           className="rounded-md border border-sand bg-background"
-          aria-label={`Xem ${source.name}`}
+          aria-label={`Xem ${source.title}`}
         >
           <Eye className="h-3.5 w-3.5" />
         </Button>
@@ -86,7 +86,7 @@ export function WorkspaceSourceItem({
           size="icon-xs"
           onClick={() => onDelete(source)}
           className="rounded-md border border-sand bg-background text-destructive hover:text-destructive"
-          aria-label={`Xóa ${source.name}`}
+          aria-label={`Xóa ${source.title}`}
         >
           <Trash2 className="h-3.5 w-3.5" />
         </Button>

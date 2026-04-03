@@ -43,6 +43,9 @@ export function useUpdateExercise() {
       queryClient.invalidateQueries({
         queryKey: exercisesKeys.list(variables.documentId),
       })
+      queryClient.invalidateQueries({
+        queryKey: exercisesKeys.detail(variables.documentId, variables.exerciseId),
+      })
     },
   })
 }

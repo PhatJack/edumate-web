@@ -5,7 +5,8 @@ import { Button } from '#/components/ui/button'
 import { useIsMobile } from '#/hooks/use-mobile'
 
 export function WorkspaceHeader() {
-  const { activeSource, activeExercise, setIsExercisePanelOpen } = useWorkspace()
+  const { activeSource, activeExercise, setIsExercisePanelOpen } =
+    useWorkspace()
   const isMobile = useIsMobile()
 
   const startTour = () => {}
@@ -19,7 +20,7 @@ export function WorkspaceHeader() {
       <div className="flex items-center gap-2">
         <SidebarTrigger />
         <h1 className="truncate text-sm font-bold text-foreground">
-          {activeSource?.name ?? ''}
+          {activeSource?.title ?? ''}
         </h1>
       </div>
 

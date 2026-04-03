@@ -1,6 +1,6 @@
 import { Loader2 } from 'lucide-react'
 
-import type { Source } from './workspace-context'
+import type { Document } from './workspace-context'
 import { useWorkspace } from './workspace-context'
 import { useDeleteDocument } from '#/hooks/api/useDocuments'
 import { Button } from '#/components/ui/button'
@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 
-function getDocumentTitle(document: Source) {
+function getDocumentTitle(document: Document) {
   return document.name || 'Tài liệu chưa đặt tên'
 }
 
@@ -22,7 +22,7 @@ export function DeleteDocumentDialog({
   open,
   onOpenChange,
 }: {
-  document: Source | null
+  document: Document | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {

@@ -21,13 +21,13 @@ import {
   DeleteDocumentDialog,
   DocumentPreviewDialog,
 } from './workspace-document-dialogs'
-import type { Source } from './workspace-context'
 import { WorkspaceChildrenDialog } from './workspace-children-dialog.tsx'
 import { WorkspaceSourceItem } from './workspace-source-item'
+import type { Document } from '#/api/types.ts'
 
 export function WorkspaceSidebar() {
   const {
-    sources,
+    documents,
     activeSourceId,
     setActiveSourceId,
     setActiveFocusId,
@@ -41,8 +41,8 @@ export function WorkspaceSidebar() {
   const [logoutError, setLogoutError] = useState<string | null>(null)
   const [isAddDocumentOpen, setIsAddDocumentOpen] = useState(false)
   const [isChildrenDialogOpen, setIsChildrenDialogOpen] = useState(false)
-  const [previewDocument, setPreviewDocument] = useState<Source | null>(null)
-  const [deleteDocument, setDeleteDocument] = useState<Source | null>(null)
+  const [previewDocument, setPreviewDocument] = useState<Document | null>(null)
+  const [deleteDocument, setDeleteDocument] = useState<Document | null>(null)
 
   const handleLogout = async () => {
     setLogoutError(null)
@@ -83,14 +83,14 @@ export function WorkspaceSidebar() {
         <SidebarGroup className="p-0">
           <SidebarGroupContent>
             <div className="space-y-2">
-              {isLoading && sources.length === 0 ? (
+              {isLoading && documents.length === 0 ? (
                 <div className="flex items-center gap-2 rounded-xl border border-border bg-sidebar px-3 py-4 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Đang tải danh sách tài liệu...
                 </div>
               ) : null}
 
-              {!isLoading && sources.length === 0 ? (
+              {!isLoading && documents.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border bg-sidebar px-3 py-4 text-sm text-muted-foreground">
                   Chưa có tài liệu nào trong danh sách quản lý.
                 </div>
@@ -102,14 +102,16 @@ export function WorkspaceSidebar() {
                 </div>
               ) : null}
 
-              {sources.map((source) => (
+              {documents.map((document) => (
                 <WorkspaceSourceItem
-                  key={source.id}
-                  source={source}
-                  isActive={source.id === activeSourceId}
-                  onSelect={(selectedSource) => {
-                    setActiveSourceId(selectedSource.id)
-                    setActiveFocusId(selectedSource.exercises[0]?.id ?? null)
+                  key={document.id}
+                  source={document}
+                  isActive={document.id === activeSourceId}
+                  onSelect={(selectedDocument) => {
+                    setActiveSourceId(selectedDocument.id)
+                    setActiveFocusId(
+                      selectedDocument.exercises?.[0]?.id as string | null,
+                    )
                     setOpenMobile(false)
                   }}
                   onPreview={setPreviewDocument}

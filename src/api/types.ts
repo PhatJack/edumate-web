@@ -106,7 +106,10 @@ export const DocumentSchema = z.object({
   download_url: z.string().optional().nullable(),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
-  exercises: z.array(ExerciseSchema).optional(), // Trả về kèm list bài tập (tuỳ endpoint)
+	original_filename: z.string().optional().nullable(),
+	storage_object_path: z.string().optional().nullable(),
+  exercises: z.array(ExerciseSchema).optional(),
+	exercise_count: z.number().optional() // Trả về kèm list bài tập (tuỳ endpoint)
 })
 export type Document = z.infer<typeof DocumentSchema>
 

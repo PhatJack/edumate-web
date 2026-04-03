@@ -5,6 +5,7 @@ import { useWorkspace } from './workspace-context'
 import { useMessages } from '#/hooks/api/useChat'
 import { cn } from '#/lib/utils'
 import { Button } from '../ui/button'
+import { toast } from 'sonner'
 
 function resolveExerciseTitle(
   exerciseId: string,
@@ -28,6 +29,13 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
   )
 
   if (!activeSourceId) return null
+
+  const handleSelectExercise = (exerciseId: string) => {
+    setActiveFocusId(exerciseId)
+    toast.success(
+      `Đã chuyển trọng tâm sang "${resolveExerciseTitle(exerciseId, exerciseLookup)}"`,
+    )
+  }
 
   return (
     <div className="space-y-5">
@@ -89,7 +97,7 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
                             <Button
                               type="button"
                               key={`${message.id}-${exerciseId}`}
-                              onClick={() => setActiveFocusId(exerciseId)}
+                              onClick={() => handleSelectExercise(exerciseId)}
                               variant={'outline'}
                               className={`w-full flex items-center justify-between border px-3 py-2 text-sm transition ${
                                 isActive
@@ -129,24 +137,6 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
               </div>
             )
           })}
-        </div>
-      )}
-
-      {/* ACTIVE FOCUS MESSAGE */}
-      {activeFocusId && (
-        <div className="flex items-start gap-2">
-          <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-            <Bot className="h-3.5 w-3.5" />
-          </div>
-
-          <div className="w-full rounded-2xl border border-border bg-card px-3.5 py-3 text-sm leading-relaxed text-foreground shadow-sm">
-            Đã chuyển trọng tâm sang{' '}
-            <span className="font-medium">
-              {resolveExerciseTitle(activeFocusId, exerciseLookup)}
-            </span>
-            . Ba mẹ cần Edumate gợi ý cách giảng hay muốn kiểm tra kết quả của
-            bé?
-          </div>
         </div>
       )}
     </div>
