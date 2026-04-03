@@ -1,15 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
-import type { Child, Document as ApiDocument, Exercise as ApiExercise } from '#/api/types'
+import type { Child, Document as ApiDocument, Exercise as ApiExercise, Exercise } from '#/api/types'
 import { useDocuments } from '#/hooks/api/useDocuments'
 import { useExercises } from '#/hooks/api/useExercises'
 import { useChildren } from '#/hooks/api/useProfile'
-
-export type Exercise = {
-  id: string
-  title: string
-  detail: string
-}
 
 export type Source = {
   id: string

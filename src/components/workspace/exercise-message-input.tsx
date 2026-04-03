@@ -37,10 +37,6 @@ export const ExerciseMessageInput = memo(function ExerciseMessageInput() {
     [handleSendMessage],
   )
 
-  if (!activeSourceId || !activeExercise) {
-    return null
-  }
-
   return (
     <div className="flex items-end gap-2 rounded-2xl">
       <Input

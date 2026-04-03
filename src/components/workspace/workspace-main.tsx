@@ -64,8 +64,6 @@ export function WorkspaceMain() {
 }
 
 function WorkspaceExerciseDetail() {
-  const { activeExercise } = useWorkspace()
-
   return (
     <ScrollArea className="min-h-0 flex-1 p-4">
       <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-muted-foreground">

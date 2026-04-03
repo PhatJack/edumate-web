@@ -35,10 +35,6 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
         <div className="rounded-2xl border border-border bg-muted/60 p-5 text-center text-sm text-muted-foreground">
           Đang tải lịch sử...
         </div>
-      ) : messageItems.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-muted/60 p-5 text-center text-sm text-muted-foreground">
-          Chưa có câu hỏi nào. Hãy đặt câu hỏi ở footer để bắt đầu.
-        </div>
       ) : (
         <div className="space-y-4">
           {messageItems.map((message) => {

@@ -32,15 +32,6 @@ export function WorkspaceSourceItem({
   onPreview,
   onDelete,
 }: WorkspaceSourceItemProps) {
-  const kindLabel =
-    source.kind === 'image'
-      ? 'Ảnh'
-      : source.kind === 'pdf'
-      ? 'PDF'
-      : source.kind === 'text'
-      ? 'Văn bản'
-      : 'Tệp'
-
   return (
     <div className="group relative">
       <button
@@ -57,7 +48,9 @@ export function WorkspaceSourceItem({
           <div
             className={cn(
               'rounded-lg border p-2 text-muted-foreground transition-colors',
-              isActive ? 'border-sidebar-ring/30 bg-background' : 'border-sand bg-background',
+              isActive
+                ? 'border-sidebar-ring/30 bg-background'
+                : 'border-sand bg-background',
             )}
           >
             {getIcon(source.kind)}
@@ -71,9 +64,6 @@ export function WorkspaceSourceItem({
               <p className="text-xs text-muted-foreground">
                 {source.exercises.length} bài tập
               </p>
-              <span className="rounded-full border border-sand px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                {kindLabel}
-              </span>
             </div>
           </div>
         </div>

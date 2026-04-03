@@ -35,10 +35,9 @@ function WorkspaceWithChildrenGate() {
             <WorkspaceMain />
             <WorkspaceFooter />
           </section>
+          <WorkspaceExercisePanel />
         </main>
       </SidebarProvider>
-
-      <WorkspaceExercisePanel />
 
       <WorkspaceChildrenDialog
         open={shouldBlock}
