@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { GraduationCap, Loader2, Plus } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 import { signOut } from 'firebase/auth'
 import {
@@ -63,8 +63,12 @@ export function WorkspaceSidebar() {
     <Sidebar className="border-r border-border bg-sidebar">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2 mb-4">
-          <div className="rounded-xl bg-primary p-2 text-primary-foreground">
-            <GraduationCap className="h-5 w-5" />
+          <div className="rounded-xl bg-primary-foreground p-2">
+            <img
+              src="/edumate_logo.svg"
+              alt="Edumate Logo"
+              className="size-6"
+            />
           </div>
           <h2 className="text-lg font-bold text-sidebar-foreground">Edumate</h2>
         </div>
