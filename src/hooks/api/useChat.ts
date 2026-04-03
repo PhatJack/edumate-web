@@ -20,13 +20,13 @@ export function useSendMessage() {
   return useMutation({
     mutationFn: ({
       documentId,
-      content,
+      message,
       exercise_id,
     }: {
       documentId: string
-      content: string
+      message: string
       exercise_id: string
-    }) => chatApi.sendMessage(documentId, { content, exercise_id }),
+    }) => chatApi.sendMessage(documentId, { message, exercise_id }),
     // Trong môi trường chat thường dùng optimistic update, 
     // tạm thời invalidate để fetch lại messages mới nhất
     onSuccess: (_, variables) => {

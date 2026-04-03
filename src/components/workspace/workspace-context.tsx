@@ -35,6 +35,8 @@ type WorkspaceContextType = {
   setActiveFocusId: (id: string | null) => void
   activeSource: Source | null
   activeExercise: Exercise | null
+  isExercisePanelOpen: boolean
+  setIsExercisePanelOpen: (open: boolean) => void
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | null>(null)
@@ -77,6 +79,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const documentsQuery = useDocuments({ child_id: selectedChildId ?? undefined })
   const [activeSourceId, setActiveSourceId] = useState<string | null>(null)
   const [activeFocusId, setActiveFocusId] = useState<string | null>(null)
+  const [isExercisePanelOpen, setIsExercisePanelOpen] = useState(false)
   const activeExercisesQuery = useExercises(activeSourceId ?? '')
   const childItems = useMemo(
     () => (childrenQuery.data ?? []).map((child) => ({
@@ -242,6 +245,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         setActiveFocusId,
         activeSource,
         activeExercise,
+        isExercisePanelOpen,
+        setIsExercisePanelOpen,
       }}
     >
       {children}

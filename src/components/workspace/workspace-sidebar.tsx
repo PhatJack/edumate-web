@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Eye, GraduationCap, Loader2, Plus, Trash2 } from 'lucide-react'
+import { GraduationCap, Loader2, Plus } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 import { signOut } from 'firebase/auth'
 import {
@@ -23,6 +23,7 @@ import {
 } from './workspace-document-dialogs'
 import type { Source } from './workspace-context'
 import { WorkspaceChildrenDialog } from './workspace-children-dialog.tsx'
+import { WorkspaceSourceItem } from './workspace-source-item'
 
 export function WorkspaceSidebar() {
   const {
@@ -102,51 +103,18 @@ export function WorkspaceSidebar() {
               ) : null}
 
               {sources.map((source) => (
-                <div key={source.id} className="group relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveSourceId(source.id)
-                      setActiveFocusId(source.exercises[0]?.id ?? null)
-                      setOpenMobile(false)
-                    }}
-                    className={`w-full rounded-xl border px-3 py-2 pr-24 text-left transition-colors ${
-                      source.id === activeSourceId
-                        ? 'border-sidebar-ring bg-sidebar-accent'
-                        : 'border-border bg-sidebar hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                    }`}
-                  >
-                    <p className="truncate text-sm font-semibold text-sidebar-foreground">
-                      {source.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {source.exercises.length} bài tập
-                    </p>
-                  </button>
-
-                  <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1 opacity-0 transition-all group-hover:opacity-100 group-focus-within:opacity-100">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon-xs"
-                      onClick={() => setPreviewDocument(source)}
-                      className="rounded-md"
-                      aria-label={`Xem ${source.name}`}
-                    >
-                      <Eye className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon-xs"
-                      onClick={() => setDeleteDocument(source)}
-                      className="rounded-md text-destructive hover:text-destructive"
-                      aria-label={`Xóa ${source.name}`}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </div>
+                <WorkspaceSourceItem
+                  key={source.id}
+                  source={source}
+                  isActive={source.id === activeSourceId}
+                  onSelect={(selectedSource) => {
+                    setActiveSourceId(selectedSource.id)
+                    setActiveFocusId(selectedSource.exercises[0]?.id ?? null)
+                    setOpenMobile(false)
+                  }}
+                  onPreview={setPreviewDocument}
+                  onDelete={setDeleteDocument}
+                />
               ))}
             </div>
           </SidebarGroupContent>
@@ -158,7 +126,7 @@ export function WorkspaceSidebar() {
           type="button"
           onClick={() => setIsChildrenDialogOpen(true)}
           id="tour-profile"
-          className="w-full rounded-xl border border-border bg-muted p-3 text-left transition-colors hover:bg-accent"
+          className="w-full rounded-xl border border-border bg-muted p-3 text-left transition-colors hover:bg-accent cursor-pointer"
         >
           <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
             Hồ sơ học tập

@@ -4,6 +4,8 @@ import { WorkspaceProvider } from '#/components/workspace/workspace-context'
 import { WorkspaceSidebar } from '#/components/workspace/workspace-sidebar'
 import { WorkspaceHeader } from '#/components/workspace/workspace-header'
 import { WorkspaceMain } from '#/components/workspace/workspace-main'
+import { WorkspaceFooter } from '#/components/workspace/workspace-footer'
+import { WorkspaceExercisePanel } from '#/components/workspace/workspace-exercise-panel'
 import { WorkspaceChildrenDialog } from '#/components/workspace/workspace-children-dialog.tsx'
 import { useWorkspace } from '#/components/workspace/workspace-context'
 
@@ -31,9 +33,12 @@ function WorkspaceWithChildrenGate() {
           <section className="flex min-w-0 flex-1 flex-col">
             <WorkspaceHeader />
             <WorkspaceMain />
+            <WorkspaceFooter />
           </section>
         </main>
       </SidebarProvider>
+
+      <WorkspaceExercisePanel />
 
       <WorkspaceChildrenDialog
         open={shouldBlock}
