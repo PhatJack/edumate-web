@@ -25,10 +25,10 @@ export function WorkspaceHeader() {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button type="button" onClick={startTour} variant="default">
+        {/* <Button type="button" onClick={startTour} variant="default">
           <PlayCircle className="h-4 w-4" />
           <span>Xem hướng dẫn</span>
-        </Button>
+        </Button> */}
         {activeExercise && (
           <Button
             type="button"

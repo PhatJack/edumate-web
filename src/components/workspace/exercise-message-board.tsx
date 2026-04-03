@@ -1,8 +1,8 @@
-import { memo } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import { Bot, ChevronRight, UserRound } from 'lucide-react'
 
 import { useWorkspace } from './workspace-context'
-import { useMessages } from '#/hooks/api/useChat'
+import { useIsSendingMessage, useMessages } from '#/hooks/api/useChat'
 import { cn } from '#/lib/utils'
 import { Button } from '../ui/button'
 import { toast } from 'sonner'
@@ -12,8 +12,14 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
   const { activeSourceId, activeSource, activeFocusId, setActiveFocusId } =
     useWorkspace()
   const { data: messages, isLoading } = useMessages(activeSourceId ?? '')
+  const isSendingMessage = useIsSendingMessage(activeSourceId)
+  const bottomRef = useRef<HTMLDivElement | null>(null)
 
   const messageItems = Array.isArray(messages) ? messages : []
+  const lastMessageId = useMemo(
+    () => messageItems[messageItems.length - 1]?.id ?? null,
+    [messageItems],
+  )
 
   if (!activeSourceId) return null
 
@@ -21,6 +27,10 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
     setActiveFocusId(exercise.id)
     toast.success(`Đã chuyển trọng tâm sang "${exercise.title}"`)
   }
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+  }, [lastMessageId, isSendingMessage])
 
   return (
     <div className="space-y-5">
@@ -116,6 +126,20 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
               </div>
             )
           })}
+
+          {isSendingMessage ? (
+            <div className="flex items-start gap-2.5">
+              <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                <Bot className="h-3.5 w-3.5" />
+              </div>
+
+              <div className="w-full rounded-2xl border border-border bg-card px-3.5 py-3 text-sm text-muted-foreground shadow-sm">
+                <p>Đang suy nghĩ...</p>
+              </div>
+            </div>
+          ) : null}
+
+          <div ref={bottomRef} />
         </div>
       )}
     </div>

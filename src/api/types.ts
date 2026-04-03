@@ -124,6 +124,7 @@ export const MessageSchema = z.object({
   id: z.string(),
   role: z.enum(['user', 'assistant', 'system']),
   content: z.string(),
+  exercise_id: z.string().optional().nullable(),
   message_type: z.string().default('text'), // 'text', 'welcome', etc.
   meta: MessageMetaSchema.optional().nullable(),
   created_at: z.string().optional(),

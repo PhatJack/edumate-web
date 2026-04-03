@@ -6,7 +6,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 
 export const ExerciseMessageInput = memo(function ExerciseMessageInput() {
-  const { activeSourceId, activeExercise } = useWorkspace()
+  const { activeSourceId, activeExercise, setActiveFocusId } = useWorkspace()
   const sendMessage = useSendMessage()
   const [message, setMessage] = useState('')
 
@@ -16,16 +16,21 @@ export const ExerciseMessageInput = memo(function ExerciseMessageInput() {
     }
 
     try {
-      await sendMessage.mutateAsync({
+      const response = await sendMessage.mutateAsync({
         documentId: activeSourceId,
         message: message.trim(),
         exercise_id: activeExercise.id,
       })
+
+      if (response.exercise_id) {
+        setActiveFocusId(response.exercise_id)
+      }
+
       setMessage('')
     } catch (error) {
       console.error('Failed to send message:', error)
     }
-  }, [message, activeSourceId, activeExercise, sendMessage])
+  }, [message, activeSourceId, activeExercise, sendMessage, setActiveFocusId])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
