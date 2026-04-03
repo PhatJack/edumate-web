@@ -2,9 +2,11 @@ import { PlayCircle, BookOpen } from 'lucide-react'
 import { useWorkspace } from './workspace-context'
 import { SidebarTrigger } from '#/components/ui/sidebar'
 import { Button } from '#/components/ui/button'
+import { useIsMobile } from '#/hooks/use-mobile'
 
 export function WorkspaceHeader() {
-  const { activeSource, activeExercise, setIsExercisePanelOpen } = useWorkspace()
+  const { activeSource, activeExercise, setIsExercisePanelOpen } =
+    useWorkspace()
 
   const startTour = () => {}
 
@@ -22,21 +24,22 @@ export function WorkspaceHeader() {
       </div>
 
       <div className="flex items-center gap-2">
-        {activeExercise && (
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            onClick={handleOpenExercisePanel}
-            title="Quản lý bài tập"
-          >
-            <BookOpen className="h-4 w-4" />
-          </Button>
-        )}
         <Button type="button" onClick={startTour} variant="default">
           <PlayCircle className="h-4 w-4" />
           <span>Xem hướng dẫn</span>
         </Button>
+        {activeExercise && (
+          <Button
+            type="button"
+            size={useIsMobile() ? 'icon' : 'default'}
+            variant="secondary"
+            onClick={handleOpenExercisePanel}
+            title="Quản lý bài tập"
+          >
+            <BookOpen className="h-4 w-4" />
+            <span className="md:inline-block hidden">Chi tiết</span>
+          </Button>
+        )}
       </div>
     </header>
   )

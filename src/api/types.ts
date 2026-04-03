@@ -55,15 +55,45 @@ export type User = z.infer<typeof UserSchema>
 
 
 // --- Document & Exercise ---
+export const ExerciseSampleSolutionImageSchema = z.object({
+  filename: z.string().optional().nullable(),
+  url: z.string().optional().nullable(),
+})
+
+export const ExerciseSampleSolutionSchema = z.object({
+  content: z.string().optional().nullable(),
+  detail: z.string().optional().nullable(),
+  html_content: z.string().optional().nullable(),
+  source_kind: z.string().optional().nullable(),
+  image: ExerciseSampleSolutionImageSchema.optional().nullable(),
+})
+
 export const ExerciseSchema = z.object({
   id: z.string(),
   title: z.string().optional(),
-  html_content: z.string(),
+  html_content: z.string().optional().nullable(),
   detail: z.string().optional().nullable(),
   agent_content: z.string().optional().nullable(),
   order: z.number().optional(),
+  scan_uncertain: z.boolean().optional(),
+  sample_solution: ExerciseSampleSolutionSchema.optional().nullable(),
+  source_exercise_id: z.string().optional().nullable(),
+  source_document_id: z.string().optional().nullable(),
+  is_similar_generated: z.boolean().optional(),
 })
 export type Exercise = z.infer<typeof ExerciseSchema>
+
+export const UploadAcceptedResponseSchema = z.object({
+  upload_id: z.string(),
+  status: z.enum(['accepted', 'stored']).optional(),
+  message: z.string().optional(),
+  backend: z.enum(['stub', 'firebase']).optional(),
+  storage_object_path: z.string().optional().nullable(),
+  download_url: z.string().optional().nullable(),
+  content_type: z.string().optional().nullable(),
+  size_bytes: z.number().optional().nullable(),
+})
+export type UploadAcceptedResponse = z.infer<typeof UploadAcceptedResponseSchema>
 
 export const DocumentKindEnum = z.enum(['pdf', 'image', 'text', 'drive'])
 export type DocumentKind = z.infer<typeof DocumentKindEnum>

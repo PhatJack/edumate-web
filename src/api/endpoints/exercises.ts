@@ -1,9 +1,15 @@
 import { api } from '../client'
-import type { Exercise } from '../types'
+import type { Exercise, UploadAcceptedResponse } from '../types'
 
 export const exercisesApi = {
   getExercises: async (documentId: string): Promise<Exercise[]> => {
     return api.get(`/documents/${documentId}/exercises`)
+  },
+  getExerciseDetail: async (
+    documentId: string,
+    exerciseId: string,
+  ): Promise<Exercise> => {
+    return api.get(`/documents/${documentId}/exercises/${exerciseId}`)
   },
   updateExercise: async (
     documentId: string,
@@ -19,7 +25,7 @@ export const exercisesApi = {
     documentId: string,
     exerciseId: string,
     file: File,
-  ): Promise<any> => {
+  ): Promise<UploadAcceptedResponse> => {
     const formData = new FormData()
     formData.append('file', file)
     return api.post(
@@ -30,10 +36,27 @@ export const exercisesApi = {
       },
     )
   },
-  createSimilar: async (
+  updateSampleSolutionContent: async (
+    documentId: string,
+    exerciseId: string,
+    text: string,
+  ): Promise<Exercise> => {
+    return api.post(
+      `/documents/${documentId}/exercises/${exerciseId}/sample-solution-content`,
+      { text },
+    )
+  },
+  createSimilar: async (documentId: string, exerciseId: string, hint: string): Promise<Exercise> => {
+    return api.post(`/documents/${documentId}/exercises/${exerciseId}/similar`, {
+      hint,
+    })
+  },
+  deleteSampleSolution: async (
     documentId: string,
     exerciseId: string,
   ): Promise<Exercise> => {
-    return api.post(`/documents/${documentId}/exercises/${exerciseId}/similar`)
+    return api.delete(
+      `/documents/${documentId}/exercises/${exerciseId}/sample-solution`,
+    )
   },
 }

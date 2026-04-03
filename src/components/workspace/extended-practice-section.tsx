@@ -1,7 +1,8 @@
 import { memo } from 'react'
-import { Zap } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Button } from '../ui/button'
 import { useWorkspace } from './workspace-context'
+import { Textarea } from '../ui/textarea'
 
 export const ExtendedPracticeSection = memo(function ExtendedPracticeSection() {
   const { activeExercise } = useWorkspace()
@@ -11,30 +12,30 @@ export const ExtendedPracticeSection = memo(function ExtendedPracticeSection() {
   }
 
   return (
-    <div className="space-y-3">
-      <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+    <section className="space-y-3 pb-2">
+      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
         Luyện tập mở rộng
       </p>
+      <p className="text-sm text-muted-foreground">
+        Yêu cầu AI tạo ra một bài tập mới cùng dạng thức để con ôn luyện sâu
+        hơn.
+      </p>
 
-      <div className="rounded-lg border border-border bg-card p-4 text-center">
-        <p className="text-sm text-muted-foreground mb-3">
-          Yêu cầu AI tạo ra một bài tập mới cùng dạng nhưng độ khó truc định
-        </p>
-        <Button type="button" size="sm" variant="default" className="w-full">
-          <Zap className="h-4 w-4" />
-          <span>Tạo bài tập tương tự</span>
-        </Button>
+      <div className="rounded-2xl border border-border bg-card p-3">
+        <Textarea
+          placeholder="Ghi chú yêu cầu (ví dụ: đổi nhân vật, số liệu nhỏ hơn)..."
+          className="min-h-21 resize-none border-0 bg-transparent px-2 shadow-none focus-visible:ring-0"
+        />
       </div>
 
-      <div className="rounded-lg border border-border bg-card p-4 text-center">
-        <p className="text-sm text-muted-foreground mb-3">
-          Yêu cầu AI tạo một bài tập nâng cao hơn hiện tại
-        </p>
-        <Button type="button" size="sm" variant="outline" className="w-full">
-          <Zap className="h-4 w-4" />
-          <span>Bài nâng cao</span>
-        </Button>
-      </div>
-    </div>
+      <Button
+        type="button"
+        variant="outline"
+        className="h-12 w-full rounded-xl border-indigo-200 bg-indigo-50 text-indigo-500 hover:bg-indigo-100"
+      >
+        <Plus className="h-4 w-4" />
+        Bắt đầu tạo bài
+      </Button>
+    </section>
   )
 })

@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 
-import ReactCrop, { centerCrop, makeAspectCrop, type Crop, type PixelCrop } from 'react-image-crop'
+import ReactCrop, {
+  centerCrop,
+  makeAspectCrop,
+  type Crop,
+  type PixelCrop,
+} from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 
 export function WorkspaceImageCropper({
@@ -8,11 +13,13 @@ export function WorkspaceImageCropper({
   previewUrl,
   imageRef,
   onCropComplete,
+  aspect = 1,
 }: {
   file: File
   previewUrl: string
   imageRef: React.RefObject<HTMLImageElement | null>
   onCropComplete: (crop: PixelCrop | null) => void
+  aspect?: number
 }) {
   const [crop, setCrop] = useState<Crop>()
 
@@ -22,10 +29,6 @@ export function WorkspaceImageCropper({
 
   return (
     <div className="grid gap-2">
-      <p className="text-sm font-semibold">Crop ảnh trước khi gửi</p>
-      <p className="text-sm text-muted-foreground">
-        Kéo khung vuông để chọn vùng ảnh sẽ được tải lên.
-      </p>
       <div className="flex justify-center">
         <div className="relative inline-block max-w-full overflow-hidden bg-muted/30">
           <ReactCrop
@@ -45,17 +48,40 @@ export function WorkspaceImageCropper({
               alt={file.name}
               onLoad={(event) => {
                 const { width, height } = event.currentTarget
-                const nextCrop = centerCrop(
-                  makeAspectCrop({ unit: '%', width: 70 }, 1, width, height),
-                  width,
-                  height,
-                )
+                const nextCrop =
+                  aspect > 0
+                    ? centerCrop(
+                        makeAspectCrop(
+                          { unit: '%', width: 70 },
+                          aspect,
+                          width,
+                          height,
+                        ),
+                        width,
+                        height,
+                      )
+                    : ({
+                        unit: '%',
+                        width: 70,
+                        height: 70,
+                        x: 15,
+                        y: 15,
+                      } as Crop)
                 setCrop(nextCrop)
                 onCropComplete({
                   x: Math.max(0, Math.round(((nextCrop.x ?? 0) / 100) * width)),
-                  y: Math.max(0, Math.round(((nextCrop.y ?? 0) / 100) * height)),
-                  width: Math.max(1, Math.round(((nextCrop.width ?? 0) / 100) * width)),
-                  height: Math.max(1, Math.round(((nextCrop.height ?? 0) / 100) * height)),
+                  y: Math.max(
+                    0,
+                    Math.round(((nextCrop.y ?? 0) / 100) * height),
+                  ),
+                  width: Math.max(
+                    1,
+                    Math.round(((nextCrop.width ?? 0) / 100) * width),
+                  ),
+                  height: Math.max(
+                    1,
+                    Math.round(((nextCrop.height ?? 0) / 100) * height),
+                  ),
                   unit: 'px',
                 })
               }}
