@@ -5,8 +5,8 @@ import { Button } from '#/components/ui/button'
 import { useIsMobile } from '#/hooks/use-mobile'
 
 export function WorkspaceHeader() {
-  const { activeSource, activeExercise, setIsExercisePanelOpen } =
-    useWorkspace()
+  const { activeSource, activeExercise, setIsExercisePanelOpen } = useWorkspace()
+  const isMobile = useIsMobile()
 
   const startTour = () => {}
 
@@ -31,7 +31,7 @@ export function WorkspaceHeader() {
         {activeExercise && (
           <Button
             type="button"
-            size={useIsMobile() ? 'icon' : 'default'}
+            size={isMobile ? 'icon' : 'default'}
             variant="secondary"
             onClick={handleOpenExercisePanel}
             title="Quản lý bài tập"

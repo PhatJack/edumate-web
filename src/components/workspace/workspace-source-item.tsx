@@ -50,7 +50,7 @@ export function WorkspaceSourceItem({
           'w-full rounded-xl border px-3 py-2.5 pr-24 text-left transition-all',
           isActive
             ? 'border-sidebar-ring bg-accent shadow-sm'
-            : 'border-sand bg-background hover:border-sidebar-ring/40 hover:bg-sidebar-accent/70',
+            : 'border-border bg-background hover:border-sidebar-ring/40 hover:bg-sidebar-accent/40',
         )}
       >
         <div className="flex items-center gap-2">

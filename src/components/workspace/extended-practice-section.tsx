@@ -1,14 +1,37 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '../ui/button'
 import { useWorkspace } from './workspace-context'
 import { Textarea } from '../ui/textarea'
+import { useCreateSimilarExercise } from '#/hooks/api/useExercises'
+import { toast } from 'sonner'
 
 export const ExtendedPracticeSection = memo(function ExtendedPracticeSection() {
-  const { activeExercise } = useWorkspace()
+  const createSimilar = useCreateSimilarExercise()
+  const { activeExercise, activeSourceId } = useWorkspace()
+  const [hint, setHint] = useState('')
 
   if (!activeExercise) {
     return null
+  }
+
+  const handleSave = async () => {
+    if (!activeSourceId || !activeExercise) {
+      return
+    }
+    try {
+      await createSimilar.mutateAsync({
+        documentId: activeSourceId,
+        exerciseId: activeExercise.id,
+        hint,
+      })
+      setHint('')
+      toast.success('Đã tạo bài tập mới.')
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Không thể tạo bài tập mới.',
+      )
+    }
   }
 
   return (
@@ -23,6 +46,8 @@ export const ExtendedPracticeSection = memo(function ExtendedPracticeSection() {
 
       <div className="rounded-2xl border border-border bg-card p-3">
         <Textarea
+          value={hint}
+          onChange={(e) => setHint(e.target.value)}
           placeholder="Ghi chú yêu cầu (ví dụ: đổi nhân vật, số liệu nhỏ hơn)..."
           className="min-h-21 resize-none border-0 bg-transparent px-2 shadow-none focus-visible:ring-0"
         />
@@ -31,6 +56,7 @@ export const ExtendedPracticeSection = memo(function ExtendedPracticeSection() {
       <Button
         type="button"
         variant="outline"
+        onClick={handleSave}
         className="h-12 w-full rounded-xl border-indigo-200 bg-indigo-50 text-indigo-500 hover:bg-indigo-100"
       >
         <Plus className="h-4 w-4" />
