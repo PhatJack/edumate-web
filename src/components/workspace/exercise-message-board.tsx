@@ -6,13 +6,7 @@ import { useMessages } from '#/hooks/api/useChat'
 import { cn } from '#/lib/utils'
 import { Button } from '../ui/button'
 import { toast } from 'sonner'
-
-function resolveExerciseTitle(
-  exerciseId: string,
-  exerciseLookup: Map<string, string>,
-): string {
-  return exerciseLookup.get(exerciseId) ?? 'Bài tập'
-}
+import type { Exercise } from '#/api/types'
 
 export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
   const { activeSourceId, activeSource, activeFocusId, setActiveFocusId } =
@@ -21,20 +15,11 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
 
   const messageItems = Array.isArray(messages) ? messages : []
 
-  const exerciseLookup = new Map(
-    (activeSource?.exercises ?? []).map((exercise) => [
-      exercise.id,
-      exercise.title,
-    ]),
-  )
-
   if (!activeSourceId) return null
 
-  const handleSelectExercise = (exerciseId: string) => {
-    setActiveFocusId(exerciseId)
-    toast.success(
-      `Đã chuyển trọng tâm sang "${resolveExerciseTitle(exerciseId, exerciseLookup)}"`,
-    )
+  const handleSelectExercise = (exercise: Exercise) => {
+    setActiveFocusId(exercise.id)
+    toast.success(`Đã chuyển trọng tâm sang "${exercise.title}"`)
   }
 
   return (
@@ -46,9 +31,7 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
       ) : (
         <div className="space-y-4">
           {messageItems.map((message) => {
-            const exerciseIds = message.meta?.exercise_ids ?? []
-            const isWelcomeMessage =
-              message.message_type === 'welcome' && exerciseIds.length > 0
+            const isWelcomeMessage = message.message_type === 'welcome'
             const isUser = message.role === 'user'
 
             return (
@@ -86,18 +69,14 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
                       </p>
 
                       <div className="space-y-1.5">
-                        {exerciseIds.map((exerciseId) => {
-                          const title = resolveExerciseTitle(
-                            exerciseId,
-                            exerciseLookup,
-                          )
-                          const isActive = activeFocusId === exerciseId
+                        {activeSource?.exercises?.map((exercise) => {
+                          const isActive = activeFocusId === exercise.id
 
                           return (
                             <Button
                               type="button"
-                              key={`${message.id}-${exerciseId}`}
-                              onClick={() => handleSelectExercise(exerciseId)}
+                              key={`${message.id}-${exercise.id}`}
+                              onClick={() => handleSelectExercise(exercise)}
                               variant={'outline'}
                               className={`w-full flex items-center justify-between border px-3 py-2 text-sm transition ${
                                 isActive
@@ -105,7 +84,7 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
                                   : 'bg-background text-foreground border-border hover:bg-muted'
                               }`}
                             >
-                              <span>{title}</span>
+                              <span>{exercise.title}</span>
                               <ChevronRight className="h-4 w-4 opacity-50" />
                             </Button>
                           )

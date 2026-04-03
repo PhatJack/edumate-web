@@ -11,6 +11,7 @@ import { WorkspaceDocumentDetailsStep } from './workspace-document-details-step'
 import {
   documentsKeys,
   useCreateDocument,
+  useScanPage,
   useSubmitText,
   useUploadDocument,
 } from '#/hooks/api/useDocuments'
@@ -41,18 +42,24 @@ export function AddDocumentDialog({
     null,
   )
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [scanPage, setScanPage] = useState(1)
   const [textContent, setTextContent] = useState('')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
   const createDocument = useCreateDocument()
   const uploadDocument = useUploadDocument()
+  const scanDocumentPage = useScanPage()
   const submitText = useSubmitText()
   const queryClient = useQueryClient()
-  const { selectedChildId, setActiveSourceId, setActiveFocusId } = useWorkspace()
+  const { selectedChildId, setActiveSourceId, setActiveFocusId, isLoading } =
+    useWorkspace()
   const imageRef = useRef<HTMLImageElement | null>(null)
 
   const isBusy =
-    createDocument.isPending || uploadDocument.isPending || submitText.isPending
+    createDocument.isPending ||
+    uploadDocument.isPending ||
+    scanDocumentPage.isPending ||
+    submitText.isPending
 
   const dialogDescription = useMemo(
     () =>
@@ -66,6 +73,7 @@ export function AddDocumentDialog({
     setStep('kind')
     setSelectedKind('image')
     setSelectedFile(null)
+    setScanPage(1)
     setTextContent('')
     setPreviewUrl(null)
     setCompletedCrop(null)
@@ -85,6 +93,7 @@ export function AddDocumentDialog({
   const handleSelectKind = useCallback((kind: DocumentKindOption | null) => {
     setSelectedKind(kind)
     setSelectedFile(null)
+    setScanPage(1)
     setTextContent('')
     setPreviewUrl(null)
     setCompletedCrop(null)
@@ -102,6 +111,10 @@ export function AddDocumentDialog({
 
   const handleTextContentChange = useCallback((value: string) => {
     setTextContent(value)
+  }, [])
+
+  const handleScanPageChange = useCallback((value: number) => {
+    setScanPage(value)
   }, [])
 
   const handleCropComplete = useCallback((crop: PixelCrop | null) => {
@@ -200,6 +213,15 @@ export function AddDocumentDialog({
           id: createdDocument.id,
           file: selectedFile,
         })
+
+        const normalizedPage = Number.isFinite(scanPage)
+          ? Math.max(1, Math.floor(scanPage))
+          : 1
+
+        await scanDocumentPage.mutateAsync({
+          id: createdDocument.id,
+          page: normalizedPage,
+        })
       }
 
       await queryClient.invalidateQueries({ queryKey: documentsKeys.lists() })
@@ -223,6 +245,8 @@ export function AddDocumentDialog({
     selectedFile,
     selectedKind,
     selectedChildId,
+    scanDocumentPage,
+    scanPage,
     setActiveFocusId,
     setActiveSourceId,
     submitText,
@@ -232,7 +256,19 @@ export function AddDocumentDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[90vh] grid-rows-[auto_minmax(0,1fr)_auto] sm:max-w-3xl">
+      <DialogContent
+        onInteractOutside={(event) => {
+          if (isLoading || isBusy) {
+            event.preventDefault()
+          }
+        }}
+        onEscapeKeyDown={(event) => {
+          if (isLoading || isBusy) {
+            event.preventDefault()
+          }
+        }}
+        className="max-h-[90vh] grid-rows-[auto_minmax(0,1fr)_auto] sm:max-w-3xl"
+      >
         <DialogHeader>
           <DialogTitle>Thêm tài liệu học</DialogTitle>
           <DialogDescription>{dialogDescription}</DialogDescription>
@@ -249,10 +285,12 @@ export function AddDocumentDialog({
               selectedKind={selectedKind}
               selectedFile={selectedFile}
               previewUrl={previewUrl}
+              scanPage={scanPage}
               textContent={textContent}
               imageRef={imageRef}
               onBackToKind={handleBackToKind}
               onFileChange={handleFileChange}
+              onScanPageChange={handleScanPageChange}
               onTextContentChange={handleTextContentChange}
               onCropComplete={handleCropComplete}
             />

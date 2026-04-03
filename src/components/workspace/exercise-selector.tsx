@@ -47,7 +47,7 @@ export const ExerciseSelector = memo(function ExerciseSelector() {
               <SelectValue placeholder="Chọn một bài tập..." />
             </SelectTrigger>
             <SelectContent>
-              {activeSource?.exercises.map((exercise) => (
+              {activeSource?.exercises?.map((exercise) => (
                 <SelectItem key={exercise.id} value={exercise.id}>
                   {exercise.title}
                 </SelectItem>
