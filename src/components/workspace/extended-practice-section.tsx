@@ -1,5 +1,5 @@
 import { memo, useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 import { Button } from '../ui/button'
 import { useWorkspace } from './workspace-context'
 import { Textarea } from '../ui/textarea'
@@ -44,12 +44,12 @@ export const ExtendedPracticeSection = memo(function ExtendedPracticeSection() {
         hơn.
       </p>
 
-      <div className="rounded-2xl border border-border bg-card p-3">
+      <div className="rounded-2xl border border-border bg-card p-1">
         <Textarea
           value={hint}
           onChange={(e) => setHint(e.target.value)}
           placeholder="Ghi chú yêu cầu (ví dụ: đổi nhân vật, số liệu nhỏ hơn)..."
-          className="min-h-21 resize-none border-0 bg-transparent px-2 shadow-none focus-visible:ring-0"
+          className="min-h-21 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
         />
       </div>
 
@@ -57,10 +57,21 @@ export const ExtendedPracticeSection = memo(function ExtendedPracticeSection() {
         type="button"
         variant="outline"
         onClick={handleSave}
-        className="h-12 w-full rounded-xl border-indigo-200 bg-indigo-50 text-indigo-500 hover:bg-indigo-100"
+        disabled={!hint.trim() || createSimilar.isPending}
+        size={'lg'}
+        className="w-full rounded-xl border-indigo-200 bg-indigo-500 text-indigo-50 hover:bg-indigo-100"
       >
-        <Plus className="h-4 w-4" />
-        Bắt đầu tạo bài
+        {createSimilar.isPending ? (
+          <span className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Đang tạo bài tập mới...
+          </span>
+        ) : (
+          <>
+            <Plus className="h-4 w-4" />
+            Bắt đầu tạo bài
+          </>
+        )}
       </Button>
     </section>
   )

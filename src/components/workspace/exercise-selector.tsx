@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { useWorkspace } from './workspace-context'
 import {
   Select,
@@ -10,9 +10,28 @@ import {
 import { cn } from '#/lib/utils'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
+import { useScanPage } from '#/hooks/api/useDocuments'
+import { toast } from 'sonner'
 
 export const ExerciseSelector = memo(function ExerciseSelector() {
+  const [page, setPage] = useState<string>('')
+  const scanPageMutation = useScanPage()
   const { activeSource, activeFocusId, setActiveFocusId } = useWorkspace()
+
+  const handleScanPage = async (pageNumber: number) => {
+    if (!activeSource || activeSource.kind !== 'pdf') {
+      return
+    }
+    try {
+      await scanPageMutation.mutateAsync({
+        id: activeSource.id,
+        page: pageNumber,
+      })
+    } catch (error: any) {
+      toast.error(error)
+      console.error('Failed to scan page:', error)
+    }
+  }
 
   return (
     <div id="tour-focus-target" className="mb-3">
@@ -28,8 +47,18 @@ export const ExerciseSelector = memo(function ExerciseSelector() {
               Quét trang PDF
             </label>
             <div className="flex gap-2 items-center">
-              <Input type="number" />
-              <Button type="button">Quét</Button>
+              <Input
+                type="number"
+                value={page}
+                onChange={(e) => setPage(e.target.value)}
+              />
+              <Button
+                type="button"
+                disabled={!page.trim() || scanPageMutation.isPending}
+                onClick={() => handleScanPage(Number(page))}
+              >
+                {scanPageMutation.isPending ? 'Đang quét...' : 'Quét'}
+              </Button>
             </div>
           </div>
         )}

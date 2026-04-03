@@ -58,13 +58,7 @@ api.interceptors.response.use(
         return response.data.data
       } else {
         // Backend trả về success: false kèm theo error (có thể HTTP 200 tuỳ config)
-        return Promise.reject(
-          new Error(
-            response.data.error?.message ||
-              response.data.error ||
-              'Server error',
-          ),
-        )
+        return Promise.reject(new Error(response.data.error || 'Server error'))
       }
     }
     // Nếu ko có cấu trúc envelope (ví dụ gọi external API) thì trả về nguyên bản
@@ -79,11 +73,9 @@ api.interceptors.response.use(
     ) {
       if (!error.response.data.success && error.response.data.error) {
         return Promise.reject(
-          new Error(
-            error.response.data.error.message ||
-              error.response.data.error ||
-              'Server error',
-          ),
+          error.response.data.error.detail ||
+            error.response.data.error ||
+            'Server error',
         )
       }
     }
