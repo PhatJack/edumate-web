@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 
 import type { Child, Document, Exercise } from '#/api/types'
 import { useDocuments } from '#/hooks/api/useDocuments'
@@ -23,10 +30,15 @@ type WorkspaceContextType = {
   activeExercise: Exercise | null
   isExercisePanelOpen: boolean
   setIsExercisePanelOpen: (open: boolean) => void
+  isTourSampleDocumentActive: boolean
+  ensureTourSampleDocument: () => void
+  removeTourSampleDocument: () => void
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | null>(null)
 const SELECTED_CHILD_STORAGE_KEY = 'edumate_selected_child_id'
+const TOUR_DOCUMENT_ID = 'tour-sample-document'
+const TOUR_EXERCISE_ID = 'tour-sample-exercise'
 
 function mapExercise(exercise: Exercise): Exercise {
   return {
@@ -58,7 +70,11 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [activeSourceId, setActiveSourceId] = useState<string | null>(null)
   const [activeFocusId, setActiveFocusId] = useState<string | null>(null)
   const [isExercisePanelOpen, setIsExercisePanelOpen] = useState(false)
-  const activeExercisesQuery = useExercises(activeSourceId ?? '')
+  const [tourDocument, setTourDocument] = useState<Document | null>(null)
+  const isTourSampleActive = activeSourceId === TOUR_DOCUMENT_ID
+  const activeExercisesQuery = useExercises(
+    isTourSampleActive ? '' : activeSourceId ?? '',
+  )
   const childItems = useMemo(
     () =>
       (childrenQuery.data ?? []).map((child) => ({
@@ -71,7 +87,55 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   const documentItems = getDocumentItems(documentsQuery.data)
 
-  const documents = useMemo(() => documentItems, [documentItems])
+  const documents = useMemo(() => {
+    if (!tourDocument) {
+      return documentItems
+    }
+
+    const hasTourDocument = documentItems.some(
+      (document) => document.id === TOUR_DOCUMENT_ID,
+    )
+    if (hasTourDocument) {
+      return documentItems
+    }
+
+    return [tourDocument, ...documentItems]
+  }, [documentItems, tourDocument])
+
+  const ensureTourSampleDocument = useCallback(() => {
+    const sampleDocument: Document = {
+      id: TOUR_DOCUMENT_ID,
+      title: 'Tài liệu mẫu: Toán lớp 1',
+      kind: 'image',
+      child_id: selectedChildId,
+      exercises: [
+        {
+          id: TOUR_EXERCISE_ID,
+          title: 'Bài mẫu: Phép cộng trong phạm vi 10',
+          detail: 'Nam có 3 quả táo, mẹ cho thêm 2 quả. Hỏi Nam có tất cả bao nhiêu quả táo?',
+          html_content:
+            '<p>Nam có 3 quả táo, mẹ cho thêm 2 quả. Hỏi Nam có tất cả bao nhiêu quả táo?</p>',
+        },
+      ],
+      exercise_count: 1,
+    }
+
+    setTourDocument((previous) => previous ?? sampleDocument)
+    setActiveSourceId(TOUR_DOCUMENT_ID)
+    setActiveFocusId(TOUR_EXERCISE_ID)
+  }, [selectedChildId])
+
+  const removeTourSampleDocument = useCallback(() => {
+    setTourDocument(null)
+
+    setActiveSourceId((previous) =>
+      previous === TOUR_DOCUMENT_ID ? null : previous,
+    )
+    setActiveFocusId((previous) =>
+      previous === TOUR_EXERCISE_ID ? null : previous,
+    )
+    setIsExercisePanelOpen(false)
+  }, [])
 
   const selectedChild = useMemo(
     () => childItems.find((child) => child.id === selectedChildId) ?? null,
@@ -138,13 +202,17 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       return null
     }
 
+    if (isTourSampleActive) {
+      return source
+    }
+
     return {
       ...source,
       exercises: activeExercisesQuery.data
         ? activeExercisesQuery.data.map(mapExercise)
         : source.exercises,
     }
-  }, [documents, activeSourceId, activeExercisesQuery.data])
+  }, [documents, activeSourceId, activeExercisesQuery.data, isTourSampleActive])
 
   const activeExercise = useMemo(
     () =>
@@ -211,7 +279,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const isLoading =
     childrenQuery.isLoading ||
     documentsQuery.isLoading ||
-    (!!activeSourceId && activeExercisesQuery.isLoading)
+    (!!activeSourceId && !isTourSampleActive && activeExercisesQuery.isLoading)
 
   const childrenError =
     childrenQuery.error instanceof Error ? childrenQuery.error.message : null
@@ -236,6 +304,9 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         activeExercise,
         isExercisePanelOpen,
         setIsExercisePanelOpen,
+        isTourSampleDocumentActive: isTourSampleActive,
+        ensureTourSampleDocument,
+        removeTourSampleDocument,
       }}
     >
       {children}

@@ -86,7 +86,10 @@ export function WorkspaceSidebar() {
       <SidebarContent className="px-4">
         <SidebarGroup className="p-0">
           <SidebarGroupContent>
-            <div className="space-y-2">
+            <div className="space-y-2" id="workspace-source-list">
+							 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+								Danh sách quản lý
+								</p>
               {isLoading && documents.length === 0 ? (
                 <div className="flex items-center gap-2 rounded-xl border border-border bg-sidebar px-3 py-4 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />

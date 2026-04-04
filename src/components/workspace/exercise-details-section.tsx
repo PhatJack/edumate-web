@@ -15,6 +15,45 @@ function sanitizeHtml(html: string) {
 }
 
 export const ExerciseDetailsSection = memo(function ExerciseDetailsSection() {
+  const { isTourSampleDocumentActive } = useWorkspace()
+
+  if (isTourSampleDocumentActive) {
+    return <TourSampleExerciseDetailsSection />
+  }
+
+  return <LiveExerciseDetailsSection />
+})
+
+function TourSampleExerciseDetailsSection() {
+  const { activeExercise } = useWorkspace()
+
+  if (!activeExercise) {
+    return null
+  }
+
+  return (
+    <section className="space-y-3 border-b border-border pb-6" id="workspace-exercise-detail">
+      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        Chi tiết đề bài
+      </p>
+
+      <div className="rounded-2xl border border-primary/70 bg-card p-3 shadow-[0_0_0_3px_rgba(79,70,229,0.06)]">
+        <div className="min-h-30 rounded-md border border-transparent bg-transparent px-2 py-2 text-base leading-relaxed text-foreground outline-none">
+          <div dangerouslySetInnerHTML={{ __html: activeExercise.detail || activeExercise.html_content || '<p></p>' }} />
+        </div>
+
+        <div className="mt-3 flex items-center justify-end gap-2">
+          <Button type="button" className="rounded-xl px-5" disabled>
+            <Save className="h-4 w-4" />
+            Lưu
+          </Button>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function LiveExerciseDetailsSection() {
   const { activeExercise, activeSourceId } = useWorkspace()
   const updateExercise = useUpdateExercise()
   const exerciseDetailQuery = useExerciseDetail(
@@ -43,7 +82,7 @@ export const ExerciseDetailsSection = memo(function ExerciseDetailsSection() {
   }, [activeExercise.id, serverHtml])
 
   const handleInput = useCallback(
-    (event: React.FormEvent<HTMLDivElement>) => {
+    (event: React.InputEvent<HTMLDivElement>) => {
       const nextHtml = sanitizeHtml(event.currentTarget.innerHTML)
       setHtmlContent(nextHtml)
       setIsDirty(nextHtml !== sanitizeHtml(serverHtml || '<p></p>'))
@@ -82,7 +121,7 @@ export const ExerciseDetailsSection = memo(function ExerciseDetailsSection() {
   }, [activeExercise, activeSourceId, htmlContent, updateExercise])
 
   return (
-    <section className="space-y-3 border-b border-border pb-6">
+    <section className="space-y-3 border-b border-border pb-6" id="workspace-exercise-detail">
       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
         Chi tiết đề bài
       </p>
@@ -114,4 +153,4 @@ export const ExerciseDetailsSection = memo(function ExerciseDetailsSection() {
       </div>
     </section>
   )
-})
+}

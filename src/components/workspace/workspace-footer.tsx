@@ -10,7 +10,7 @@ export function WorkspaceFooter() {
   }
 
   return (
-    <footer className="border-t border-border p-4">
+    <footer className="border-t border-border p-4" id='workspace-footer'>
       <ExerciseSelector />
       <ExerciseMessageInput />
     </footer>

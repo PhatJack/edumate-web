@@ -3,13 +3,23 @@ import { useWorkspace } from './workspace-context'
 import { SidebarTrigger } from '#/components/ui/sidebar'
 import { Button } from '#/components/ui/button'
 import { useIsMobile } from '#/hooks/use-mobile'
+import { startDriverOnboardingTour } from '../tour/TourOnClick'
 
 export function WorkspaceHeader() {
-  const { activeSource, activeExercise, setIsExercisePanelOpen } =
-    useWorkspace()
+  const {
+    activeSource,
+    activeExercise,
+    setIsExercisePanelOpen,
+    ensureTourSampleDocument,
+    removeTourSampleDocument,
+  } = useWorkspace()
   const isMobile = useIsMobile()
 
-  const startTour = () => {}
+  const startTour = () => {
+    ensureTourSampleDocument()
+    setIsExercisePanelOpen(true)
+    startDriverOnboardingTour({ onComplete: removeTourSampleDocument })
+  }
 
   const handleOpenExercisePanel = () => {
     setIsExercisePanelOpen(true)
@@ -25,10 +35,10 @@ export function WorkspaceHeader() {
       </div>
 
       <div className="flex items-center gap-2">
-        {/* <Button type="button" onClick={startTour} variant="default">
+        <Button type="button" onClick={startTour} variant="default">
           <PlayCircle className="h-4 w-4" />
           <span>Xem hướng dẫn</span>
-        </Button> */}
+        </Button>
         {activeExercise && (
           <Button
             type="button"

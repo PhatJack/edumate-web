@@ -9,6 +9,57 @@ import { toast } from 'sonner'
 import type { Exercise } from '#/api/types'
 
 export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
+  const { isTourSampleDocumentActive } = useWorkspace()
+
+  if (isTourSampleDocumentActive) {
+    return <TourSampleMessageBoard />
+  }
+
+  return <LiveExerciseMessageBoard />
+})
+
+function TourSampleMessageBoard() {
+  const { activeSource, activeFocusId, setActiveFocusId } = useWorkspace()
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground shadow-sm">
+        Đây là giao diện mẫu dành cho tour. Khi ba mẹ tải tài liệu thật, Edumate
+        mới kết nối dữ liệu và bắt đầu hội thoại.
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card px-4 py-4 shadow-sm">
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Danh sách bài tập
+        </p>
+        <div className="mt-3 space-y-2">
+          {activeSource?.exercises?.map((exercise) => {
+            const isActive = activeFocusId === exercise.id
+
+            return (
+              <Button
+                type="button"
+                key={exercise.id}
+                variant="outline"
+                className={`w-full flex items-center justify-between border px-3 py-2 text-sm transition ${
+                  isActive
+                    ? 'border-primary/20 bg-primary/10 text-primary'
+                    : 'border-border bg-background text-foreground hover:bg-muted'
+                }`}
+                onClick={() => setActiveFocusId(exercise.id)}
+              >
+                <span>{exercise.title}</span>
+                <ChevronRight className="h-4 w-4 opacity-50" />
+              </Button>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function LiveExerciseMessageBoard() {
   const { activeSourceId, activeSource, activeFocusId, setActiveFocusId } =
     useWorkspace()
   const { data: messages, isLoading } = useMessages(activeSourceId ?? '')
@@ -51,14 +102,12 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
                   isUser ? 'justify-end' : ''
                 }`}
               >
-                {/* BOT AVATAR */}
                 {!isUser && (
                   <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
                     <Bot className="h-3.5 w-3.5" />
                   </div>
                 )}
 
-                {/* MESSAGE */}
                 <div
                   className={cn(
                     'rounded-2xl border px-3.5 py-3 text-sm leading-relaxed shadow-sm',
@@ -71,7 +120,6 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
                 >
                   <p>{message.content}</p>
 
-                  {/* EXERCISE LIST */}
                   {!isUser && isWelcomeMessage && (
                     <div className="mt-3">
                       <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -103,7 +151,6 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
                     </div>
                   )}
 
-                  {/* TIME */}
                   {message.created_at && (
                     <p
                       className={`mt-1.5 text-[10px] ${
@@ -117,7 +164,6 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
                   )}
                 </div>
 
-                {/* USER AVATAR */}
                 {isUser && (
                   <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                     <UserRound className="h-3.5 w-3.5" />
@@ -144,4 +190,4 @@ export const ExerciseMessageBoard = memo(function ExerciseMessageBoard() {
       )}
     </div>
   )
-})
+}
